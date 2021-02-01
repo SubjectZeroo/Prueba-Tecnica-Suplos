@@ -63,11 +63,17 @@
                     <p>Codigo Postal: <?=  $busquedabien->codigo_postal ?></p>
                     <p>Tipo: <?=  $busquedabien->tipo ?></p>
                     <p>Precio <?=  $busquedabien->precio ?></p>
-                    <form action="/add-bien?id=<?= $bien->id  ?>" method="POST">       
+                    <?php if($busquedabien->saved == 1 ) : ?>
+                        <span>Ya se guardo</span>
+                      <?php else : ?>
+                      
+                        <form action="/add-bien?id=<?= $busquedabien->id  ?>" method="POST">       
                               <button class="btn waves-effect waves-light" type="submit" name="add-bien">Guardar
                                 <i class="material-icons right">send</i>
                               </button>  
                           </form>
+
+                      <?php endif; ?>
                   </div>
                 </div>  
             <?php endforeach; ?>

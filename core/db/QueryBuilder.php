@@ -28,8 +28,7 @@
     {
 
     //  die(var_dump(array_keys($parameters))); 
-
-        
+ 
      $sql = sprintf(
         'INSERT INTO %s (%s) VALUES (%s)',
 
@@ -57,16 +56,21 @@
     
 public function selectBienes($table){
   $statement = $this->pdo->prepare("SELECT  
-                                          B.id,
-                                          B.direccion, 
-                                          B.telefono, 
-                                          B.codigo_postal, 
-                                          B.precio, 
-                                          C.name AS ciudad , 
-                                          TB.name AS tipo 
-                                          FROM {$table} B 
-                                          INNER JOIN ciudad C ON B.ciudad_id = C.id
-                                          INNER JOIN tipo_bienes TB ON B.tipo_id = TB.id");
+                                            B.id,
+                                            B.direccion, 
+                                            B.telefono, 
+                                            B.codigo_postal, 
+                                            B.precio, 
+                                            C.name AS ciudad , 
+                                            TB.name AS tipo ,                                          
+                                            CASE 
+                                            WHEN bien_id IS NULL THEN 2
+                                            WHEN bien_id IS NOT NULL THEN 1
+                                            END AS  saved
+                                            FROM {$table} B 
+                                            INNER JOIN ciudad C ON B.ciudad_id = C.id
+                                            INNER JOIN tipo_bienes TB ON B.tipo_id = TB.id
+                                            LEFT  JOIN favoritos_bienes FB ON B.id = FB.bien_id");
 
                                            $statement->execute();
                                            return $statement->fetchAll(PDO::FETCH_CLASS);
@@ -78,19 +82,25 @@ public function selectBienes($table){
     {
         try
             {
-                $statement = $this->pdo->prepare("SELECT 
-                                                        B.direccion, 
-                                                        B.telefono, 
-                                                        B.codigo_postal, 
-                                                        B.precio,
-                                                        C.name AS ciudad,
-                                                        TB.name AS tipo
-                                                        FROM bienes B 
-                                                        INNER JOIN ciudad C ON B.ciudad_id = C.id
-                                                        INNER JOIN tipo_bienes TB ON B.tipo_id = TB.id
-                                                        WHERE C.id = {$ciudad} AND 
-                                                        TB.id = {$tipo} AND 
-                                                        precio BETWEEN CONCAT('$', {$precioMinimo}) AND  CONCAT('$', {$precioMaximo})");
+               $statement = $this->pdo->prepare("SELECT 
+                                                      B.id,
+                                                      B.direccion, 
+                                                      B.telefono, 
+                                                      B.codigo_postal, 
+                                                      B.precio,
+                                                      C.name AS ciudad,
+                                                      TB.name AS tipo,
+                                                      CASE 
+                                                      WHEN bien_id IS NULL THEN 2
+                                                      WHEN bien_id IS NOT NULL THEN 1
+                                                      END AS  saved
+                                                      FROM bienes B 
+                                                      INNER JOIN ciudad C ON B.ciudad_id = C.id
+                                                      INNER JOIN tipo_bienes TB ON B.tipo_id = TB.id
+                                                      LEFT  JOIN favoritos_bienes FB ON B.id = FB.bien_id
+                                                      WHERE C.id = {$ciudad} AND 
+                                                      TB.id = {$tipo} AND 
+                                                  precio BETWEEN CONCAT('$', {$precioMinimo}) AND  CONCAT('$', {$precioMaximo})");
 
               $statement->execute();
 
@@ -108,15 +118,15 @@ public function selectBienes($table){
         try
             {
                 $statement = $this->pdo->prepare("SELECT FB.id, 
-                   FB.bien_id,
-                  B.direccion, 
-                  B.telefono, 
-                  B.codigo_postal, 
-                  B.precio, C.name AS ciudad, TP.name AS tipo   
-                  FROM {$tabla} FB
-                  INNER JOIN bienes B ON FB.bien_id = B.id
-                  INNER JOIN ciudad C ON B.ciudad_id = C.id
-                 INNER JOIN tipo_bienes TP ON B.tipo_id = TP.id");
+                                                          FB.bien_id,
+                                                          B.direccion, 
+                                                          B.telefono, 
+                                                          B.codigo_postal, 
+                                                          B.precio, C.name AS ciudad, TP.name AS tipo   
+                                                          FROM {$tabla} FB
+                                                          INNER JOIN bienes B ON FB.bien_id = B.id
+                                                          INNER JOIN ciudad C ON B.ciudad_id = C.id
+                                                        INNER JOIN tipo_bienes TP ON B.tipo_id = TP.id");
 
               $statement->execute();
 
@@ -157,12 +167,9 @@ public function excel($table,$ciudad, $tipo){
                                             WHERE C.id = {$ciudad} AND 
                                             TB.id = {$tipo} ");
 
-                                           $statement->execute();
-                                           return $statement->fetchAll(PDO::FETCH_ASSOC);
+                                        $statement->execute();
+                                        return $statement->fetchAll(PDO::FETCH_ASSOC);
 
 }
  
-
-
-
 }
