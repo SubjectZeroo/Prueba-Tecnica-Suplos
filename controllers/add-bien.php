@@ -8,12 +8,5 @@ if(isset($_POST['add-bien'])){
 
     ]);
 
-    App::get('database')->insert('bienes',[
-    
-        'saved' => 1,
-       
-    
-        ]);
-
     header("Location: /"); 
 }
